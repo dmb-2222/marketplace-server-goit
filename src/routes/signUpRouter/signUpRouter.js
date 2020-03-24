@@ -20,21 +20,39 @@ router.get("/:id", function(req, res) {
 });
 
 router.post("/", function(req, res) {
-  let body = "";
   let allUsers = [];
-  req.on("data", function(data) {
-    body = data + body;
-    // username = JSON.parse(body).username;
-    userData = JSON.parse(body)
-    userDataWithId = {
-      id: shortid(),
-      userData
-    };
+  const fileHandler = async () => {
+    return fs.readFileSync(
+      "src/db/users/all-users.json",
+      "utf8",
+      (err, allDataUsers) => {
+        if (err) throw err;
+        allUsers = allDataUsers;
+      }
+    );
+  };
+  fileHandler().then(result => {
+    console.log("result.......", result);
     
-      fs.writeFile(`src/db/users/all-users.json`, JSON.stringify([...allUsers, userDataWithId]), function(err) {
-      if (err) return console.log("Not created", err);
-      console.log("File is created successfully.");
-      res.status(200).json({ status: "success", user: userDataWithId });
+    let body = "";
+    req.on("data", function(data) {
+      body = data + body;
+      const userData = JSON.parse(body);
+      const parsedData = JSON.parse(result);
+      userDataWithId = {
+        id: shortid(),
+        userData
+      };
+      console.log('userDataWithId',result)
+      fs.writeFile(
+        `src/db/users/all-users.json`,
+        JSON.stringify([...parsedData, userDataWithId]),
+        function(err) {
+          if (err) return console.log("Not created", err);
+          console.log("File is created successfully.");
+          res.status(200).json({ status: "success", user: userDataWithId });
+        }
+      );
     });
   });
 });
