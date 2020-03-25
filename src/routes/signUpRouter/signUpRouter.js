@@ -2,23 +2,27 @@ const express = require("express");
 const router = express.Router();
 const fs = require("fs");
 const shortid = require("shortid");
+const usersData = JSON.parse(
+  fs.readFileSync(`__dirname/../src/db/users/all-users.json`)
+);
 
 router.get("/:id", function(req, res) {
-  const product = productsDB.find(el => Number(el.id) === req.params.id * 1);
-  if (product) {
+  const user = usersData.find(el => el.id === req.params.id);
+  console.log(user);
+  if (user) {
     res.status(200).json({
       status: "success",
       data: {
-        product
+        user
       }
     });
   } else
     res.status(404).json({
-      status: "no products",
-      product: []
+      status: "not found"
     });
 });
 
+// add new user to json
 router.post("/", function(req, res) {
   let allUsers = [];
   const fileHandler = async () => {
@@ -33,7 +37,7 @@ router.post("/", function(req, res) {
   };
   fileHandler().then(result => {
     console.log("result.......", result);
-    
+
     let body = "";
     req.on("data", function(data) {
       body = data + body;
@@ -43,7 +47,7 @@ router.post("/", function(req, res) {
         id: shortid(),
         userData
       };
-      console.log('userDataWithId',result)
+      console.log("userDataWithId", result);
       fs.writeFile(
         `src/db/users/all-users.json`,
         JSON.stringify([...parsedData, userDataWithId]),
