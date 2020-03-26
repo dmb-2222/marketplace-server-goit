@@ -6,6 +6,7 @@ const usersData = JSON.parse(
   fs.readFileSync(`__dirname/../src/db/users/all-users.json`)
 );
 
+
 router.get("/:id", function(req, res) {
   const user = usersData.find(el => el.id === req.params.id);
   console.log(user);
@@ -25,7 +26,7 @@ router.get("/:id", function(req, res) {
 // add new user to json
 router.post("/", function(req, res) {
   let allUsers = [];
-  const fileHandler = async () => {
+(async () => {
     return fs.readFileSync(
       "src/db/users/all-users.json",
       "utf8",
@@ -34,10 +35,7 @@ router.post("/", function(req, res) {
         allUsers = allDataUsers;
       }
     );
-  };
-  fileHandler().then(result => {
-    console.log("result.......", result);
-
+  })().then(result => {
     let body = "";
     req.on("data", function(data) {
       body = data + body;

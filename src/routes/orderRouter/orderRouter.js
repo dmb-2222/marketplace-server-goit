@@ -4,13 +4,8 @@ const fs = require("fs");
 const productsDB = JSON.parse(
   fs.readFileSync(`__dirname/../src/db/products/all-products.json`)
 );
-// const path = require('path')
-
-// const notes = '../../db/users/Ivan.json'
-// console.log(path.normalize(notes));
-// path.dirname(notes) // /users/flavio
-// path.basename(notes) // notes.txt
-// path.extname(notes) // .txt
+const util = require("util");
+// const fsPromises = fs.promises;
 
 router.post("/", function(req, res) {
   let body = "";
@@ -30,16 +25,26 @@ router.post("/", function(req, res) {
       res.status(200).json({ status: "failed", order: null });
     } else res.status(200).json({ status: "success", order: { id: userId, user: "id", products: newOrder, deliveryType: "deliveryType", deliveryAdress: "deliveryAdress" } });
     //created new order
+
+
+    // try {
+    //   await fsPromises.writeFile(`__dirname/../src/db/users/${userId}/orders/${userId}.json`,`${body}`);
+    // } catch (e) {
+    //   throw new Error(e);
+    // }
+    const mkdir = util.promisify(fs.mkdir);
+    const writeFile = util.promisify(fs.writeFile);
+   
     (async () => {
-      await fs.mkdirSync(
+      await mkdir(
         `__dirname/../src/db/users/${userId}/orders`,
         { recursive: true },
         err => {
           if (err) throw err;
         }
       );
-
-      fs.writeFile(
+      // don't work
+      await writeFile(
         `__dirname/../src/db/users/${userId}/orders/${userId}.json`,
         `${body}`,
         function(err) {
@@ -47,6 +52,24 @@ router.post("/", function(req, res) {
         }
       );
     })();
+
+    // (async () => {
+    //   await fs.mkdirSync(
+    //     `__dirname/../src/db/users/${userId}/orders`,
+    //     { recursive: true },
+    //     err => {
+    //       if (err) throw err;
+    //     }
+    //   );
+
+    //   fs.writeFile(
+    //     `__dirname/../src/db/users/${userId}/orders/${userId}.json`,
+    //     `${body}`,
+    //     function(err) {
+    //       if (err) return console.log("Not created", err);
+    //     }
+    //   );
+    // })();
   });
 });
 module.exports = router;
