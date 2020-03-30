@@ -4,7 +4,7 @@ const fs = require("fs");
 const productsDB = JSON.parse(
   fs.readFileSync(`__dirname/../src/db/products/all-products.json`)
 );
-const util = require("util");
+// const util = require("util");
 // const fsPromises = fs.promises;
 
 router.post("/", function(req, res) {
@@ -26,25 +26,41 @@ router.post("/", function(req, res) {
     } else res.status(200).json({ status: "success", order: { id: userId, user: "id", products: newOrder, deliveryType: "deliveryType", deliveryAdress: "deliveryAdress" } });
     //created new order
 
-
     // try {
     //   await fsPromises.writeFile(`__dirname/../src/db/users/${userId}/orders/${userId}.json`,`${body}`);
     // } catch (e) {
     //   throw new Error(e);
     // }
-    const mkdir = util.promisify(fs.mkdir);
-    const writeFile = util.promisify(fs.writeFile);
-   
+    // const mkdir = util.promisify(fs.mkdirSync);
+    // const writeFile = util.promisify(fs.writeFile);
+    // (async () => {
+    //   await mkdir(
+    //     `__dirname/../src/db/users/${userId}/orders`,
+    //     { recursive: true },
+    //     err => {
+    //       if (err) throw err;
+    //     }
+    //   );
+    // })();
+    // // don't work
+    // writeFile(
+    //   `__dirname/../src/db/users/${userId}/orders/${userId}.json`,
+    //   `${body}`,
+    //   function(err) {
+    //     if (err) return console.log("Not created", err);
+    //   }
+    // );
+    // promises
     (async () => {
-      await mkdir(
+      await fs.promises.mkdir(
         `__dirname/../src/db/users/${userId}/orders`,
         { recursive: true },
         err => {
           if (err) throw err;
         }
       );
-      // don't work
-      await writeFile(
+
+      fs.promises.writeFile(
         `__dirname/../src/db/users/${userId}/orders/${userId}.json`,
         `${body}`,
         function(err) {
@@ -52,24 +68,6 @@ router.post("/", function(req, res) {
         }
       );
     })();
-
-    // (async () => {
-    //   await fs.mkdirSync(
-    //     `__dirname/../src/db/users/${userId}/orders`,
-    //     { recursive: true },
-    //     err => {
-    //       if (err) throw err;
-    //     }
-    //   );
-
-    //   fs.writeFile(
-    //     `__dirname/../src/db/users/${userId}/orders/${userId}.json`,
-    //     `${body}`,
-    //     function(err) {
-    //       if (err) return console.log("Not created", err);
-    //     }
-    //   );
-    // })();
   });
 });
 module.exports = router;
