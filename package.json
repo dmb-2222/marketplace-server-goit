@@ -18,6 +18,8 @@
   "homepage": "https://github.com/dmb-2222/marketplace-server-goit#readme",
   "dependencies": {
     "express": "^4.17.1",
+    "express-handlebars": "^4.0.0",
+    "mongoose": "^5.9.7",
     "morgan": "^1.9.1",
     "nodemon": "^2.0.2",
     "shortid": "^2.2.15"

@@ -1,75 +1,46 @@
 const express = require("express");
 const router = express.Router();
-const fs = require("fs");
-const productsDB = JSON.parse(
-  fs.readFileSync(`__dirname/../src/db/products/all-products.json`)
-);
-const util = require("util");
-// const fsPromises = fs.promises;
+const { Schema, model } = require("mongoose");
 
-router.post("/", function(req, res) {
+const orderSchema = Schema({
+  creator: String,
+  productsList: [
+    {
+      product: String,
+      formType: String,
+      itemsCount: Number
+    }
+  ],
+  deliveryType: String,
+  deliveryAdress: String,
+  sumToPay: Number,
+  status: String
+});
+const Order = model("Order", orderSchema);
+
+router.post("/", async function(req, res) {
   let body = "";
-  const newOrder = [];
   req.on("data", function(data) {
     body = data + body;
-    const userOrder = JSON.parse(body);
-    // console.log("userOrder", userOrder);
-    const userId = userOrder.user;
-    userOrder.products.forEach(el => {
-      productsDB.forEach(product => {
-        if (product.id * 1 === el * 1) newOrder.push(product);
-      });
+    const orderData = JSON.parse(body);
+
+    const order = new Order(orderData);
+
+    order.save(err => {
+      if (err) res.status(200).json({ status: "no-success", order: err });
+      console.log("order successfully saved.");
+      res.status(200).json({ status: "success", order: orderData });
     });
-
-    if (newOrder.length === 0) {
-      res.status(200).json({ status: "failed", order: null });
-    } else res.status(200).json({ status: "success", order: { id: userId, user: "id", products: newOrder, deliveryType: "deliveryType", deliveryAdress: "deliveryAdress" } });
-    //created new order
-
-
-    // try {
-    //   await fsPromises.writeFile(`__dirname/../src/db/users/${userId}/orders/${userId}.json`,`${body}`);
-    // } catch (e) {
-    //   throw new Error(e);
-    // }
-    const mkdir = util.promisify(fs.mkdir);
-    const writeFile = util.promisify(fs.writeFile);
-   
-    (async () => {
-      await mkdir(
-        `__dirname/../src/db/users/${userId}/orders`,
-        { recursive: true },
-        err => {
-          if (err) throw err;
-        }
-      );
-      // don't work
-      await writeFile(
-        `__dirname/../src/db/users/${userId}/orders/${userId}.json`,
-        `${body}`,
-        function(err) {
-          if (err) return console.log("Not created", err);
-        }
-      );
-    })();
-
-    // (async () => {
-    //   await fs.mkdirSync(
-    //     `__dirname/../src/db/users/${userId}/orders`,
-    //     { recursive: true },
-    //     err => {
-    //       if (err) throw err;
-    //     }
-    //   );
-
-    //   fs.writeFile(
-    //     `__dirname/../src/db/users/${userId}/orders/${userId}.json`,
-    //     `${body}`,
-    //     function(err) {
-    //       if (err) return console.log("Not created", err);
-    //     }
-    //   );
-    // })();
   });
 });
+// find order by id
+router.get("/:id", function(req, res) {
+  Order.findById(req.params.id, function(err, order) {
+    if (err) {
+      return res.status(400).json({ status: "no-success", err:err });
+    }
+    res.status(200).json({ status: "success", order: order });
+  });
+});
+
 module.exports = router;

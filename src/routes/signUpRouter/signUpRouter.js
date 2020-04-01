@@ -1,61 +1,81 @@
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
-const shortid = require("shortid");
-const usersData = JSON.parse(
-  fs.readFileSync(`__dirname/../src/db/users/all-users.json`)
-);
+const { Schema, model } = require("mongoose");
 
+const userSchema = Schema({
+  username: String,
+  telephone: String,
+  password: String,
+  email: String,
+  favoriteProducts: Array,
+  viewedProducts: Array,
+  orders: Array
+});
 
-router.get("/:id", function(req, res) {
-  const user = usersData.find(el => el.id === req.params.id);
-  console.log(user);
-  if (user) {
-    res.status(200).json({
-      status: "success",
-      data: {
-        user
-      }
+const User = model("Users", userSchema);
+
+// User.findByIdAndUpdate(
+//   "5e8384e1da23b32d0ca24192",
+//   { orders:[444, 4444] , favoriteProducts: ["cucumber", "carrot"] },
+//   function(err, user) {
+//     disconnect();
+//     if (err) return console.log(err);
+//     console.log(user.orders);
+//   }
+// );
+// Добавить роут PUT user/:id который в body шлет одно из полей
+// выше с новым значением. После получения запроса пользователь в базе должен обновится.
+// В ответ бекенд отправляет
+//  {
+//   "status": "success",
+//   "product": <updated-user>
+//  }
+router.put("/:id", function(req, res) {
+  let body = "";
+  req.on("data", function(data) {
+    body = data + body;
+    const productData = JSON.parse(body);
+
+    console.log(Object.keys(productData));
+    Object.keys(productData).forEach(num => {
+      User.findById(req.params.id, function(err, user) {
+        if (err) {
+          return res.status(200).json({ status: err });
+        }
+
+        User.findByIdAndUpdate(
+          req.params.id,
+          {
+            [num]: [...user[num], productData[num]]
+          },
+          function(err, user) {;
+            if (err) return console.log(err);
+          }
+        );
+        res.status(200).json({ status: "success", product: productData[num] });
+      });
     });
-  } else
-    res.status(404).json({
-      status: "not found"
-    });
+  });
 });
 
 // add new user to json
-router.post("/", function(req, res) {
-  let allUsers = [];
-(async () => {
-    return fs.readFileSync(
-      "src/db/users/all-users.json",
-      "utf8",
-      (err, allDataUsers) => {
-        if (err) throw err;
-        allUsers = allDataUsers;
-      }
-    );
-  })().then(result => {
-    let body = "";
-    req.on("data", function(data) {
-      body = data + body;
-      const userData = JSON.parse(body);
-      const parsedData = JSON.parse(result);
-      userDataWithId = {
-        id: shortid(),
-        userData
-      };
-      console.log("userDataWithId", result);
-      fs.writeFile(
-        `src/db/users/all-users.json`,
-        JSON.stringify([...parsedData, userDataWithId]),
-        function(err) {
-          if (err) return console.log("Not created", err);
-          console.log("File is created successfully.");
-          res.status(200).json({ status: "success", user: userDataWithId });
-        }
-      );
+router.post("/", async function(req, res) {
+  let body = "";
+  req.on("data", function(data) {
+    body = data + body;
+    const userData = JSON.parse(body);
+    (userData.favoriteProducts = []),
+      (userData.viewedProducts = []),
+      (userData.orders = []);
+
+    const user = new User(userData);
+
+    user.save(err => {
+      if (err) throw err;
+      console.log("user successfully saved.");
     });
+    res.status(200).json({ status: "success", user: userData });
   });
 });
 

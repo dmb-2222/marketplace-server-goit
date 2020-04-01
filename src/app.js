@@ -1,5 +1,11 @@
+// const exphbs = require("express-handlebars");
 const express = require("express");
 const morgan = require("morgan");
+
+// const hbs = exphbs.create({
+//   defaultLayout: main,
+//   extname: "hbs"
+// });
 
 const productsRouter = require("./routes/productsRouter/productsRouter");
 const singUpRouter = require("./routes/signUpRouter/signUpRouter");
