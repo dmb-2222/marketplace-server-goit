@@ -1,39 +1,54 @@
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
-// const productsDB = require("../../db/products/all-products.json");
-const productsDB = JSON.parse(
-  fs.readFileSync(`__dirname/../src/db/products/all-products.json`)
-);
+const { Schema, model, disconnect } = require("mongoose");
+// const productsDB = JSON.parse(
+//   fs.readFileSync(`__dirname/../src/db/products/all-products.json`)
+// );
 
-router.get("/:id", function(req, res) {
-  const product = productsDB.find(el => Number(el.id) === req.params.id * 1);
-  if (product) {
-    res.status(200).json({
-      status: "success",
-      data: {
-        product
-      }
-    });
-  } else
-    res.status(404).json({
-      status: "no products",
-      product: []
-    });
+const productSchema = Schema({
+  id: Number,
+  sku: Number,
+  name: String,
+  description: String,
+  price: Number,
+  currency: String,
+  creatorId: Number,
+  created: String,
+  modified: String,
+  categories: Array,
+  likes: Number
 });
 
-router.get("/", function(req, res) {
-  const idsArr = req.query.ids.slice().split(",");
-  const result = [];
-  console.log("idsArr", idsArr);
-  idsArr.forEach(el => {
-    productsDB.forEach(productDB => {
-      if (productDB.id * 1 === el * 1) result.push(productDB);
+const Product = model("Product", productSchema);
+
+// add json-product to Mongo
+
+// Product.insertMany(productsDB, function(error, docs) {
+//   console.log(error);
+//   console.log(docs);
+// });
+
+// К товару добавить поле likes: Number
+
+// Product.updateMany({likes:0}, function(err, result){
+//   if(err) return console.log(err);
+//   console.log(result);
+// });
+
+router.put("/:id", function(req, res) {
+  const id = req.params.id;
+  let body = "";
+  req.on("data", function(data) {
+    body = data + body;
+    const productData = JSON.parse(body);
+    console.log(productData)
+    Product.findByIdAndUpdate(id, productData, function(err, product) {
+      // disconnect();
+      if (err) res.status(400).json({ status: "no-success", err: err });
+      res.status(200).json({ status: "success" });
+      console.log("Обновленный объект", product);
     });
-  });
-  res.status(404).json({
-    status: "no products",
-    products: result
   });
 });
 

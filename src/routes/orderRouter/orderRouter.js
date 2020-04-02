@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { Schema, model } = require("mongoose");
 
+
 const orderSchema = Schema({
   creator: String,
   productsList: [
@@ -27,7 +28,7 @@ router.post("/", async function(req, res) {
     const order = new Order(orderData);
 
     order.save(err => {
-      if (err) res.status(200).json({ status: "no-success", order: err });
+      if (err) res.status(400).json({ status: "no-success", order: err });
       console.log("order successfully saved.");
       res.status(200).json({ status: "success", order: orderData });
     });
