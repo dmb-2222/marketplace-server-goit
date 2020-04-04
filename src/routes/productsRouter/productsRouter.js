@@ -50,6 +50,7 @@ router.put("/:id", function(req, res) {
       console.log("Обновленный объект", product);
     });
   });
+  mongoose.disconnect();
 });
 
 module.exports = router;
