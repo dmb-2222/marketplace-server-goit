@@ -6,6 +6,8 @@ const singUpRouter = require("./routes/signUpRouter/signUpRouter");
 const userOrder = require("./routes/orderRouter/orderRouter");
 
 const app = express();
+app.use(express.json());
+app.use(express.urlencoded());
 app.use(morgan("dev"));
 
 app.use("/products", productsRouter);
