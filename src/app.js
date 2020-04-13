@@ -13,6 +13,14 @@ const userOrder = require("./routes/orderRouter/orderRouter");
 
 const app = express();
 app.use(morgan("dev"));
+// Убери метод on в каждом методе где берешь body === пример ордерРоутер
+app.use(express.json());
+app.use((err, req, res, next) => {
+  console.log(err);
+
+  delete err.stack;
+  next(err);
+});
 
 app.use("/products", productsRouter);
 app.use("/users/:id", singUpRouter);
