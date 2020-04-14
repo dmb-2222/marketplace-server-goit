@@ -6,9 +6,18 @@ const singUpRouter = require("./routes/signUpRouter/signUpRouter");
 const userOrder = require("./routes/orderRouter/orderRouter");
 
 const app = express();
+
+app.use((err, req, res, next) => {
+  console.log(err);
+
+  delete err.stack;
+  next(err);
+});
+
+
+app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded());
-app.use(morgan("dev"));
 
 app.use("/products", productsRouter);
 app.use("/users/:id", singUpRouter);
