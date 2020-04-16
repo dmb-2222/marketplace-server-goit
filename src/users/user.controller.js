@@ -115,10 +115,7 @@ class UserController {
       // помилку зі статус кодом 401
       // userModel - модель користувача в нашій системі
       // const user = await userModel.findOne({ email });
-      const user = await userModel.findById(userId, function (err, userData) {
-        if (err) return err;
-        return userData;
-      });
+      const user = await userModel.findById(userId);
 
       if (!user) {
         throw new UnauthorizedError("User not authorized2");
@@ -134,11 +131,11 @@ class UserController {
       next(err);
     }
   }
-  async getCurrentUser(res, req, next) {
+  async getCurrentUser(req,res , next) {
     // console.log(req.req.user);
-    return res.res
+    return res
       .status(200)
-      .json({ username: req.req.user.username, email: req.req.user.email });
+      .json({ username: req.user.username, email: req.user.email });
   }
 }
 
