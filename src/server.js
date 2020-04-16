@@ -1,48 +1,21 @@
-// const app = require("./app");
-// const dotenv = require("dotenv");
-// const { port } = require("../config");
-// const mongoose = require("mongoose");
-
-// dotenv.config();
-// // const port = process.env.port
-// const mongoDB= process.env.MONGO_DB_API_KYE
-
-// const port = process.env.PORT || 3000
-
-// void (async () => {
-//   try {
-//     await mongoose.connect(
-//       `${mongoDB}`,
-//       {
-//         useCreateIndex: true,
-//         useFindAndModify: false,
-//       }
-//     );
-//     app.listen(port, () => {
-//       console.log(`App running on port ${port}`);
-//     });
-//   } catch (e) {
-//     console.log(e);
-//   }
-// })();
-
-const { port } = require("../config");
 const express = require("express");
 const mongoose = require("mongoose");
+const morgan = require("morgan");
 
+const { port } = require("../config");
 const userRouter = require("./users/user.router");
 
-const MONGODB_URL= ''
+require("dotenv").config();
 
 module.exports = class Server {
   constructor() {
     this.server = null;
   }
-  start() {
+  async start() {
     this.initServer();
     this.initMiddlewares();
     this.initRoutes();
-    this.initDatabase();
+    await this.initDatabase();
     this.startListening();
   }
   initServer() {
@@ -50,13 +23,21 @@ module.exports = class Server {
   }
   initMiddlewares() {
     this.server.use(express.json());
+    // this.server.use(express.urlencoded());
+    this.server.use(morgan("dev"));
+    this.server.use((err, req, res, next) => {
+      console.log(err);
+      delete err.stack;
+      next(err);
+    });
+    
   }
 
   initRoutes() {
     this.server.use("/users", userRouter);
   }
   async initDatabase() {
-    await mongoose.connect()
+    await mongoose.connect(process.env.MONGODB_URL, { useFindAndModify: false });
   }
   startListening() {
     this.server.listen(port, () => {
