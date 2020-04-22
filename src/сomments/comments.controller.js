@@ -38,9 +38,13 @@ const validateCreateComments = (req, res, next) => {
 const getComments = async (req, res) => {
   const { productId } = req.query;
   try {
-    // commentsModel.findById({productId})
-    console.log(commentsModel.products.findById({productId}));
-    return res.status(201).json({ status: "success", сomments: [] });
+    commentsModel.find({ product: productId }, function (err, data) {
+      console.log(data);
+      if (data.length !== 0) {
+        return res.status(201).json({ status: "success", сomments: data });
+      }
+      return res.status(400).json({ status: "no success", сomments: [] });
+    });
   } catch (err) {
     next(err);
   }
