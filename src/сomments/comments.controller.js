@@ -38,13 +38,19 @@ const validateCreateComments = (req, res, next) => {
 const getComments = async (req, res) => {
   const { productId } = req.query;
   try {
-    commentsModel.find({ product: productId }, function (err, data) {
-      console.log(data);
-      if (data.length !== 0) {
-        return res.status(201).json({ status: "success", сomments: data });
-      }
-      return res.status(400).json({ status: "no success", сomments: [] });
-    });
+    const data = await commentsModel.find({ product: productId });
+    if (data.length !== 0) {
+      return res.status(201).json({ status: "success", сomments: data });
+    }
+    return res.status(400).json({ status: "no success", сomments: [] });
+
+    // commentsModel.find({ product: productId }, function (err, data) {
+    //   console.log(data);
+    //   if (data.length !== 0) {
+    //     return res.status(201).json({ status: "success", сomments: data });
+    //   }
+    //   return res.status(400).json({ status: "no success", сomments: [] });
+    // });
   } catch (err) {
     next(err);
   }
