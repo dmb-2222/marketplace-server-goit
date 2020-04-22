@@ -131,11 +131,9 @@ class UserController {
       next(err);
     }
   }
-  async getCurrentUser(req,res , next) {
-    // console.log(req.req.user);
-    return res
-      .status(200)
-      .json({ username: req.user.username, email: req.user.email });
+  async getCurrentUser(req, res, next) {
+    const { username, email } = req.user;
+    return res.status(200).json({ username: username, email: email });
   }
 }
 
