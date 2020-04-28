@@ -6,6 +6,7 @@ const { port } = require("../config");
 const userRouter = require("./users/user.router");
 const ingridientsRouter = require("./ingredients/ingredients.router");
 const commentsRouter = require('./сomments/comments.router')
+const productRouter =require('./products/products.router')
 
 require("dotenv").config();
 
@@ -38,10 +39,13 @@ module.exports = class Server {
     this.server.use("/users", userRouter);
     this.server.use("/ingridients", ingridientsRouter);
     this.server.use('/comments', commentsRouter)
+    this.server.use('/products', productRouter)
   }
   async initDatabase() {
     await mongoose.connect(process.env.MONGODB_URL, {
       useFindAndModify: false,
+      useUnifiedTopology: true,
+      useNewUrlParser: true
     });
   }
   startListening() {
