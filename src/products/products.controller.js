@@ -1,5 +1,9 @@
 const Product = require("./products.model");
 
+const createProduct = async (req, res, next) {
+  
+}
+
 const updateProduct = async (req, res) => {
   const id = req.params.id;
   let body = "";
@@ -26,6 +30,9 @@ const getProducts = async (req, res, next) => {
   try {
     const products = await Product.find({}).populate("ingredients");
     console.log("products", products);
+    if (products) {
+      res.status(200).json({ products: products });
+    }
   } catch (err) {
     next(err);
   }

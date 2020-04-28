@@ -2,7 +2,7 @@ const { Schema, model} = require("mongoose");
 const mongoose = require("mongoose");
 
 const productSchema = Schema({
-  ingredientsId: { type: mongoose.Types.ObjectId, required: true },
+  ingredientsId: [{ type: mongoose.Types.ObjectId, required: true }],
   id: Number,
   sku: Number,
   name: String,
@@ -16,11 +16,11 @@ const productSchema = Schema({
   likes: Number,
 });
 
-productSchema.virtual("ingredients", {
+productSchema.virtual("Ingredients", {
   ref: "ingredients",
   localField: "ingredientsId",
   foreignField: "_id",
-  justOne: true,
+  // justOne: true,
 });
 
 const Product = model("Product", productSchema);
